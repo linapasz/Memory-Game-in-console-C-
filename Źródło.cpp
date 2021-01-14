@@ -136,10 +136,10 @@ void plansza(char tablica[4][4], int I, int licznik)
 				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
 				cout << " | ";
 			}
-			
+
 
 		}
-		cout << endl<<  "  ---------------------------\n";
+		cout << endl << "  ---------------------------\n";
 	}
 }
 
@@ -197,7 +197,7 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4], string name)
 				system("cls");
 				blad = true;
 			}
-			else if (realTimePlansza[y2][x2] == ' ' || (x2==x1 && y1==y2)) { //kiedy by³a ju¿ odkryta lub I karta to by³a ta
+			else if (realTimePlansza[y2][x2] == ' ' || (x2 == x1 && y1 == y2)) { //kiedy by³a ju¿ odkryta lub I karta to by³a ta
 				cout << "\nJuz wybrales ta karte!\n";
 				this_thread::sleep_for(chrono::seconds(1));
 				system("cls");
@@ -557,7 +557,7 @@ int main() {
 			cin >> choice;
 		}
 		}
-	
+
 
 		if ((choice != '1') && (choice != '2') && (choice != '3')) {		//sprawdzam czy jest opcja pasujaca do podanego znaku
 			cout << "\nNie ma takiej opcji!" << endl;

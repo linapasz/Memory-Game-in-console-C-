@@ -1,0 +1,2 @@
+C:\Users\Karolina\source\repos\memory_projekt\Debug\memory_projekt.exe
+C:\Users\Karolina\source\repos\memory_projekt\Debug\memory_projekt.pdb
