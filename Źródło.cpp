@@ -6,8 +6,7 @@
 #include <windows.h>
 #include <string>
 #include <thread>         // std::this_thread::sleep_for
-#include <chrono>
-#include <conio.h>
+
 
 char choice;
 char liczby[8];
@@ -17,12 +16,11 @@ bool again = true; //to bêdzie zmienna do wykonywania siê naszej pêtli 'g³ównej'
 char znaki[8] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' }; //na pocz¹tek jeden zestaw znaków
 char zestawKart[4][4]; //wylosowany zestaw kart
 char realTimePlansza[4][4];
-float pozostalyCzas = 60;
+float pozostalyCzas = 300;
+bool blad;
 clock_t t1;
 clock_t t2;
-time_t s1;
-time_t s2;
-
+HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 using namespace std;
 
 
@@ -105,22 +103,47 @@ void plansza(char tablica[4][4], int I, int licznik)
 	cout << "                       Liczba krokow: " << licznik << endl;
 	cout << "                       Trafienia: " << I << endl;
 	cout << "--------------------------------------------------------------" << endl << endl;
-	cout << "   | 0 | 1 | 2 | 3 |\n";
-	cout << "  ------------------\n";
+	cout << "   |  0  |  1  |  2  |  3  |\n";
+	cout << "  ---------------------------\n";
 	int i;
 	for (i = 0; i < 4; i++) { //przechodzimy do kolejnego wiersza
 
 		cout << " " << i << " | ";
 		for (int j = 0; j < 4; j++) { // przechodzimy po kolejnych elementach w wierszu
 
-			cout << tablica[i][j] << " | ";
+			if (tablica[i][j] == 'O') {//¿eby by³o niebieskie t³o z bia³¹ czcionk¹
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+				cout << " ";
+				cout << tablica[i][j];
+				cout << " ";
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
+				cout << " | ";
+			}
+			//BACKGROUND_BLUE | BACKGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED
+			else if (tablica[i][j] == ' ') { //¿eby by³o czarne
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+				cout << " ";
+				cout << tablica[i][j];
+				cout << " ";
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
+				cout << " | ";
+			}
+			else {//¿eby by³o szare z niebiesk¹ czcionk¹
+				SetConsoleTextAttribute(hOut, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_INTENSITY);
+				cout << " ";
+				cout << tablica[i][j];
+				cout << " ";
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
+				cout << " | ";
+			}
+			
 
 		}
-		cout << "\n  -------------------\n";
+		cout << endl<<  "  ---------------------------\n";
 	}
 }
 
-void easy(char realTimePlansza[4][4], char zestawKart[4][4])
+void easy(char realTimePlansza[4][4], char zestawKart[4][4], string name)
 {
 	int I = 0; //wielki i potê¿ny licznik naszej pêli. Pêtla siê koñczy, kiedy ju¿ wszystkie karty odkryjemy
 			   //czyli kiedy bêdziemy mieæ 8 par
@@ -131,23 +154,60 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4])
 		int x2;
 		int y2;
 
-		plansza(realTimePlansza, I, licznikKrokow);
-		cout << "I karta: " << endl;
-		cout << "x: ";
-		cin >> x1;
-		cout << "y: ";
-		cin >> y1;
+		do {
+			plansza(realTimePlansza, I, licznikKrokow);
+			cout << "I karta: " << endl;
+			cout << "x: ";
+			cin >> x1;
+			cout << "y: ";
+			cin >> y1;
+
+			if ((x1 > 3 || x1 < 0) || (y1 > 3 || y1 < 0)) {
+				cout << "\nNie ma takiego pola!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else if (realTimePlansza[y1][x1] == ' ') {//kiedy by³a ju¿ odgadniêta
+				cout << "\nJuz wybrales ta karte!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else {
+				blad = false;
+			}
+		} while (blad == true);
+
 		realTimePlansza[y1][x1] = zestawKart[y1][x1];
 
 		system("cls");
 
-		plansza(realTimePlansza, I, licznikKrokow);
+		do {
+			plansza(realTimePlansza, I, licznikKrokow);
+			cout << "II karta: " << endl;
+			cout << "x: ";
+			cin >> x2;
+			cout << "y: ";
+			cin >> y2;
 
-		cout << "II karta: " << endl;
-		cout << "x: ";
-		cin >> x2;
-		cout << "y: ";
-		cin >> y2;
+			if ((x2 > 3 || x2 < 0) || (y2 > 3 || y2 < 0)) {
+				cout << "\nNie ma takiego pola!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else if (realTimePlansza[y2][x2] == ' ' || (x2==x1 && y1==y2)) { //kiedy by³a ju¿ odkryta lub I karta to by³a ta
+				cout << "\nJuz wybrales ta karte!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else {
+				blad = false;
+			}
+		} while (blad == true);
+
 		realTimePlansza[y2][x2] = zestawKart[y2][x2];
 		licznikKrokow++;
 
@@ -158,8 +218,8 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4])
 			cout << endl << "Pudlo! Wpisz dowolny znak by kontynuowaæ" << endl;
 			cin >> choice;
 			system("cls");
-			realTimePlansza[y1][x1] = '0';
-			realTimePlansza[y2][x2] = '0';
+			realTimePlansza[y1][x1] = 'O';
+			realTimePlansza[y2][x2] = 'O';
 		}
 		else { //jeœli trafione, to powiêkszamy licznik pêtli i pomijamy ponowne drukowanie planszy
 
@@ -176,32 +236,41 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4])
 
 	} while (I < 8);
 
+	int punkty = licznikKrokow;
 	cout << "--------------------------------------------------------------" << endl;
 	cout << "                             WYGRA£EŒ!                       " << endl;
 	cout << "                          w" << licznikKrokow << "krokach" << endl;
+	cout << "                          punkty: " << punkty << endl;
 	cout << "--------------------------------------------------------------" << endl;
+
+	fstream newfile;
+	newfile.open("RankingEasy.txt");
+	if (newfile.is_open()) {
+		newfile << name << " " << punkty << "pkt";
+		newfile.close();
+	}
+
 	plansza(realTimePlansza, I, licznikKrokow);
 	cout << endl << "Pudlo! Wpisz dowolny znak by kontynuowaæ" << endl;
 	cin >> choice;
-
 }
 
-int uplywCzasu(clock_t t1, clock_t t2) {
+int uplywCzasu(clock_t t1, clock_t t2) { //obliczanie pozostalego czasu
 	float diff = 0;
-	cout << t1;
-	cout << t2;
+	//cout << t1;
+	//cout << t2;
 
 	diff = t2 - t1;
-	cout << diff << endl;
+	//cout << diff << endl;
 	float seconds = diff / CLOCKS_PER_SEC;
-	cout << seconds << endl;
+	//cout << seconds << endl;
 	pozostalyCzas -= seconds;
-	cout << pozostalyCzas << endl;
+	//cout << pozostalyCzas << endl;
 
 	return pozostalyCzas;
 }
 
-void hard(char realTimePlansza[4][4], char zestawKart[4][4]) {
+void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) {
 	int I = 0; //wielki i potê¿ny licznik naszej pêli. Pêtla siê koñczy, kiedy ju¿ wszystkie karty odkryjemy
 		   //czyli kiedy bêdziemy mieæ 8 par
 	int licznikKrokow = 0;
@@ -212,29 +281,64 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4]) {
 		int x2;
 		int y2;
 
-		t1 = clock();
+		t1 = clock();//pobieranie pierwszego czasu
 		cout << "                       Pozostaly czas: " << pozostalyCzas << endl;
-		plansza(realTimePlansza, I, licznikKrokow);
-		cout << "I karta: " << endl;
-		cout << "x: ";
-		cin >> x1;
-		cout << "y: ";
-		cin >> y1;
+		do {
+			plansza(realTimePlansza, I, licznikKrokow);
+			cout << "I karta: " << endl;
+			cout << "x: ";
+			cin >> x1;
+			cout << "y: ";
+			cin >> y1;
+
+			if ((x1 > 3 || x1 < 0) || (y1 > 3 || y1 < 0)) {
+				cout << "\nNie ma takiego pola!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else if (realTimePlansza[y1][x1] == ' ') {
+				cout << "\nJuz wybrales ta karte!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else {
+				blad = false;
+			}
+		} while (blad == true);
+
 		realTimePlansza[y1][x1] = zestawKart[y1][x1];
 		system("cls");
 
-		t2 = clock();
-		pozostalyCzas = uplywCzasu(t1, t2);
-		t1 = t2;
+		t2 = clock();//drugi czas
+		pozostalyCzas = uplywCzasu(t1, t2);//obliczanie czasu pozosta³ego
+		t1 = t2;//drugi czas staje siê pierwszym do kolejnego obliczenia czasu
 
+		do {
+			cout << "                       Pozostaly czas: " << pozostalyCzas << " s" << endl;
+			plansza(realTimePlansza, I, licznikKrokow);
+			cout << "II karta: " << endl;
+			cout << "x: ";
+			cin >> x2;
+			cout << "y: ";
+			cin >> y2;
 
-		cout << "                       Pozostaly czas: " << pozostalyCzas << endl;
-		plansza(realTimePlansza, I, licznikKrokow);
-		cout << "II karta: " << endl;
-		cout << "x: ";
-		cin >> x2;
-		cout << "y: ";
-		cin >> y2;
+			if ((x2 > 3 || x2 < 0) || (y2 > 3 || y2 < 0)) {
+				cout << "\nNie ma takiego pola!\n";
+				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
+				blad = true;
+			}
+			else if (realTimePlansza[y2][x2] == ' ' || (x2 == x1 && y1 == y2)) {
+				cout << "\nJuz wybrales ta karte!\n";
+				blad = true;
+			}
+			else {
+				blad = false;
+			}
+		} while (blad == true);
+
 		realTimePlansza[y2][x2] = zestawKart[y2][x2];
 		licznikKrokow++;
 		system("cls");
@@ -250,8 +354,8 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4]) {
 			cout << endl << "Pudlo! Wpisz dowolny znak by kontynuowaæ" << endl;
 			cin >> choice;
 			system("cls");
-			realTimePlansza[y1][x1] = '0';
-			realTimePlansza[y2][x2] = '0';
+			realTimePlansza[y1][x1] = 'O';
+			realTimePlansza[y2][x2] = 'O';
 		}
 		else { //jeœli trafione, to powiêkszamy licznik pêtli i pomijamy ponowne drukowanie planszy
 
@@ -269,14 +373,28 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4]) {
 		pozostalyCzas = uplywCzasu(t1, t2);
 		t1 = t2;
 	} while (I < 8 & pozostalyCzas>0);
+
 	if (I == 8) {
+		float kroki = licznikKrokow;
+		cout << endl << kroki << endl;
+		float punkty = kroki + 300 - pozostalyCzas;
+
 		cout << "--------------------------------------------------------------" << endl;
 		cout << "                             WYGRALES!                       " << endl;
 		cout << "                          w" << licznikKrokow << "krokach" << endl;
+		cout << "                          punkty: " << punkty << endl;
 		cout << "--------------------------------------------------------------" << endl;
 		plansza(realTimePlansza, I, licznikKrokow);
 		cout << endl << "Wpisz dowolny znak by kontynuowaæ" << endl;
 		cin >> choice;
+
+		fstream newfile;
+		newfile.open("RankingHard.txt");
+		if (newfile.is_open()) {
+			newfile << name << " " << punkty << "pkt.\n";
+			newfile.close();
+		}
+
 	}
 	else {
 		cout << "--------------------------------------------------------------" << endl;
@@ -289,27 +407,41 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4]) {
 
 }
 
-void logo() {
-	cout << "Oo      oO o.OOoOoo Oo      oO  .oOOOo.  `OooOOo.  o       O " << endl;
-	cout << "O O    o o  O       O O    o o .O     o.  o     `o O       o " << endl;
-	cout << "o  o  O  O  o       o  o  O  O O       o  O      O `o     O' " << endl;
-	cout << "O   Oo   O  ooOO    O   Oo   O o       O  o     .O   O   o   " << endl;
-	cout << "O        o  O       O        o O       o  OOooOO'     `O'    " << endl;
-	cout << "o        O  o       o        O o       O  o    o       o     " << endl;
-	cout << "o        O  O       o        O `o     O'  O     O      O     " << endl;
-	cout << "O        o ooOooOoO O        o  `OoooO'   O      o     O     " << endl << endl;
+void logo() {			//wczytywanie logo MEMORY z pliku tekstowego
+	fstream newfile;
+	newfile.open("MemoryLogo.txt");
+	if (newfile.is_open()) {
+		string Logo;
+		while (getline(newfile, Logo)) {
+			cout << Logo << endl;
+		}
+		newfile.close();
+	}
 }
 
 void wybierzKarty() {
 	system("cls");
-	choice = 0;
-	cout << "                       Wybierz zestaw kart" << endl;
-	cout << "--------------------------------------------------------------" << endl;
-	cout << "                       1. Literki" << endl;
-	cout << "                       2. Cyferki" << endl;
-	cout << "                       3. Matma style" << endl;
-	cout << "                       Wybor: ";
-	cin >> choice;
+
+	do {
+		choice = 0;
+		cout << "                       Wybierz zestaw kart" << endl;
+		cout << "--------------------------------------------------------------" << endl << endl;
+		cout << "                       1. Literki" << endl;
+		cout << "                       2. Cyferki" << endl;
+		cout << "                       3. Matma style" << endl << endl;
+		cout << "                       Wybor: ";
+		cin >> choice;
+
+		if ((choice != '1') && (choice != '2') && (choice != '3')) {
+			cout << "\nNie ma takiej opcji!" << endl;
+			this_thread::sleep_for(chrono::seconds(1));
+			system("cls");
+			blad = true;
+		}
+		else {
+			blad = false;
+		}
+	} while (blad == true);
 
 	switch (choice) {
 	case '1':
@@ -337,22 +469,15 @@ void wybierzKarty() {
 	default: break;
 	}
 }
-void odliczanie() {
-	system("cls");
-	cout << "                             GRAMY!" << endl;
-	cout << "                     " << " przygotuj sie" << endl;
-	cout << "                               3" << endl;
-	this_thread::sleep_for(chrono::seconds(1));
-	system("cls");
-	cout << "                             GRAMY!" << endl;
-	cout << "                     " << " przygotuj sie" << endl;
-	cout << "                               2" << endl;
-	this_thread::sleep_for(chrono::seconds(1));
-	system("cls");
-	cout << "                             GRAMY!" << endl;
-	cout << "                     " << " przygotuj sie" << endl;
-	cout << "                               1" << endl;
-	this_thread::sleep_for(chrono::seconds(1));
+
+void odliczanie() {//odliczanie do rozpoczecia gry
+	for (int i = 3; i > 0; i--) {
+		system("cls");
+		cout << "\t   GRAMY!" << endl;
+		cout << "\tprzygotuj sie" << endl;
+		cout << "\t     " << i << endl;
+		Sleep(1000);
+	}
 	system("cls");
 }
 
@@ -364,7 +489,7 @@ int main() {
 
 	for (int i = 0; i < 4; i++) { //ogarniêcie real time planszy, rewers obecnie stanowi¹ "0"
 		for (int j = 0; j < 4; j++) {
-			realTimePlansza[i][j] = '0';
+			realTimePlansza[i][j] = 'O';
 		}
 	}
 
@@ -380,7 +505,7 @@ int main() {
 	}
 	else
 	{
-		cout << "Nie udalo sie otworzyc" << endl;
+		cout << "Nie udalo sie wczytac znakow" << endl;
 	}
 	wczytBiblLiczby.close();
 
@@ -396,39 +521,72 @@ int main() {
 	}
 	else
 	{
-		cout << "Nie udalo sie otworzyc" << endl;
+		cout << "Nie udalo sie wczytac znakow" << endl;
 	}
 	wczytBiblZnaki.close();
 
 
 	logo();
-	cout << "                             Witaj!" << endl;
+	cout << endl << "                             Witaj!" << endl;
 	cout << "--------------------------------------------------------------" << endl;
 	cout << "               Wpisz swoje imie: ";
 	cin >> name;
 	system("cls");
+	choice = 1;
 
 	while (again) {
+		switch (choice) {
+		case 1: {
+			system("cls");
+			logo();
+			cout << endl << "                       Witaj " << name << "!" << endl;
+			cout << "--------------------------------------------------------------" << endl;
+			cout << "                       1. Rozpocznij gre" << endl;
+			cout << "                       2. Wyjdz" << endl;
+			cout << "                       3. Ranking" << endl;
+			cout << "                       Wybor: ";
+			cin >> choice;
+			break;
+		}
+		default: {
+			cout << "                           SZYBKIE MENU" << endl;
+			cout << "--------------------------------------------------------------" << endl;
+			cout << "                       1. Rozpocznij gre" << endl;
+			cout << "                       2. Wyjdz" << endl;
+			cout << "                       Wybor: ";
+			cin >> choice;
+		}
+		}
+	
 
-		logo();
-		cout << "                       Witaj " << name << "!" << endl;
-		cout << "--------------------------------------------------------------" << endl;
-		cout << "                       1. Rozpocznij gre" << endl;
-		cout << "                       2. Wyjdz" << endl;
-		cout << "                       Wybor: ";
-		cin >> choice;
+		if ((choice != '1') && (choice != '2') && (choice != '3')) {		//sprawdzam czy jest opcja pasujaca do podanego znaku
+			cout << "\nNie ma takiej opcji!" << endl;
+			return 0;
+		}
 		system("cls");
 
 		if (choice == '1') {
 
-			choice = 0;
-			cout << "                       Wybierz poziom" << endl;
-			cout << "--------------------------------------------------------------" << endl;
-			cout << "                       E. Easy" << endl;
-			cout << "                       H. Hard" << endl;
-			cout << "                       P. Punktowany" << endl;
-			cout << "                       Wybor: ";
-			cin >> choice;
+			do {
+				choice = 0;
+				cout << "                       Wybierz poziom." << endl;
+				cout << "--------------------------------------------------------------" << endl;
+				cout << "\t\t  Wpisz odpowiednia litere:\n" << endl;
+				cout << "                       \"E\" dla Easy" << endl;
+				cout << "                       \"H\" dla Hard" << endl;
+				cout << endl << "                       Wybor: ";
+				cin >> choice;
+
+				if (choice != 'E' && choice != 'e' && choice != 'h' && choice != 'H') {
+					cout << "\nNie ma takiego trybu !" << endl;
+					this_thread::sleep_for(chrono::seconds(1));
+					system("cls");
+					blad = true;
+				}
+				else {
+					blad = false;
+				}
+			} while (blad == true);
 
 			switch (choice) {
 			case 'E':;
@@ -436,8 +594,8 @@ int main() {
 				wybierzKarty();
 				losowanie(wybraneKarty, zestawKart);
 				odliczanie();
-				easy(realTimePlansza, zestawKart);
-
+				easy(realTimePlansza, zestawKart, name);
+				choice = 1;
 				break;
 
 			case 'H':;
@@ -445,25 +603,48 @@ int main() {
 				wybierzKarty();
 				losowanie(wybraneKarty, zestawKart);
 				odliczanie();
-				hard(realTimePlansza, zestawKart);
-				break;
-			case 'P':;
-			case 'p':
-				wybierzKarty();
-				losowanie(wybraneKarty, zestawKart);
-				odliczanie();
-				easy(realTimePlansza, zestawKart);
+				hard(realTimePlansza, zestawKart, name);
+				choice = 1;
 				break;
 
-			default: break;
+			default: choice = 1; break;
 			}
-
 		}
-		else if (choice == '2') {
+		if (choice == '2') {
 			again = false;
 		}
+		else if (choice == '3') {
+			cout << endl << "Ranking graczy trybow EASY oraz HARD" << endl;
+			cout << "--------------------------------------------------------------" << endl;
+			cout << "\t\tEASY" << endl;
 
+			fstream EASY;
+			EASY.open("RankingEasy.txt");
+			if (EASY.is_open()) {
+				string Easy;
+				while (getline(EASY, Easy)) {
+					cout << Easy << endl;
+				}
+				EASY.close();
+			}
+
+			cout << "--------------------------------------------------------------";
+			cout << endl << "\t\tHARD" << endl;
+
+			fstream HARD;
+			HARD.open("RankingHard.txt");
+			if (HARD.is_open()) {
+				string Hard;
+				while (getline(HARD, Hard)) {
+					cout << Hard << endl;
+				}
+				HARD.close();
+			}
+			cout << "--------------------------------------------------------------" << endl;
+			choice = 0;
+		}
 	}
+
 
 	return 0;
 }
