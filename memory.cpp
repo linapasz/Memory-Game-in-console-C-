@@ -162,18 +162,6 @@ void losowanie(char znaki[8], char zestawKart[4][4])
 			}
 		}
 	}
-	/*
-	//kontrolny podgl¹d wylosowanego uk³adu kart
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			cout << zestawKart[i][j] << " ";
-
-		}
-		cout << endl;
-	}
-	*/
 }
 
 void plansza(char tablica[4][4], int I, int licznik)
@@ -294,7 +282,6 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4], string name)
 
 		realTimePlansza[y2][x2] = zestawKart[y2][x2];
 		licznikKrokow++;
-
 		system("cls");
 		if (zestawKart[y1][x1] != zestawKart[y2][x2]) { //jeœli nietrafione, to znowu zakrywamy
 
@@ -419,6 +406,7 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) { //an
 				SetConsoleTextAttribute(hOut, FOREGROUND_BLUE | FOREGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE | FOREGROUND_INTENSITY);
 				cout << "\nJuz wybrales ta karte!\n";
 				this_thread::sleep_for(chrono::seconds(1));
+				system("cls");
 				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
 				blad = true;
 			}
@@ -441,10 +429,8 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) { //an
 		if (zestawKart[y1][x1] != zestawKart[y2][x2]) { //jeœli nietrafione, to znowu zakrywamy
 			cout << "                       Pozostaly czas: " << pozostalyCzas << endl;
 			plansza(realTimePlansza, I, licznikKrokow);
-
 			cout << endl << "Nacisnij enter by kontynuowac" << endl;
 			_getch();
-
 			system("cls");
 			realTimePlansza[y1][x1] = 'O';
 			realTimePlansza[y2][x2] = 'O';
