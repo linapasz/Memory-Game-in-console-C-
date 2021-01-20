@@ -6,6 +6,8 @@
 #include <thread>         
 #include <conio.h>
 
+//DODA£AM "S" PRZY POZOSTA£YM CZASIE W HARDZIE
+
 char choice;
 char liczby[8];
 char znakiMat[8];
@@ -324,8 +326,9 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4], string name)
 	}
 	cout << endl; //ISTOTNE DO WSKAZNIKA, NIE USUWAC
 	plansza(realTimePlansza, I, licznikKrokow);
-	cout << endl << "Pudlo! Nacisnij enter by kontunuowac" << endl;
+	cout << endl << "Nacisnij enter by kontunuowac" << endl;
 	_getch();
+
 }
 
 int uplywCzasu(clock_t t1, clock_t t2) { //obliczanie pozostalego czasu
@@ -347,7 +350,7 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) { //an
 		cords lokalne;
 		t1 = clock();//pobieranie pierwszego czasu
 
-		cout << "                       Pozostaly czas: " << pozostalyCzas << endl;
+		cout << "                       Pozostaly czas: " << pozostalyCzas << " s" << endl;
 		do {
 			plansza(realTimePlansza, I, licznikKrokow);
 			cout << "Wybierz karty" << endl;
@@ -427,7 +430,7 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) { //an
 		}
 
 		if (zestawKart[y1][x1] != zestawKart[y2][x2]) { //jeœli nietrafione, to znowu zakrywamy
-			cout << "                       Pozostaly czas: " << pozostalyCzas << endl;
+			cout << "                       Pozostaly czas: " << pozostalyCzas << " s" << endl;
 			plansza(realTimePlansza, I, licznikKrokow);
 			cout << endl << "Nacisnij enter by kontynuowac" << endl;
 			_getch();
@@ -456,7 +459,7 @@ void hard(char realTimePlansza[4][4], char zestawKart[4][4], string name) { //an
 
 	if (I == 8) {
 		float kroki = licznikKrokow;
-		cout << endl << kroki << endl;
+		//cout << endl << kroki << endl;
 		float punkty = kroki + 300 - pozostalyCzas;
 		cout << endl;
 		cout << "--------------------------------------------------------------" << endl;
@@ -498,6 +501,16 @@ void logo() {			//wczytywanie logo MEMORY z pliku tekstowego
 			cout << Logo << endl;
 		}
 		newfile.close();
+	}
+	else  {
+		cout << "Oo      oO  o.OOoOoo Oo      oO.  oOOOo.  `OooOOo. o         O" << endl;
+		cout << "O O    o o  O        O O    o o .O     o.  o     `o O       o" << endl;
+		cout << "o  o  O  O  o        o  o  O  O O       o  O      O `o     O'" << endl;
+		cout << "O   Oo   O  ooOO     O   Oo   O o       O  o     .O   O   o  " << endl;
+		cout << "O        o  O        O        o O       o  OOooOO'     `O'    " << endl;
+		cout << "o        O  o        o        O o       O  o    o       o   " << endl;
+		cout << "o        O  O        o        O `o     O'  O     O      O " << endl;
+		cout << "O        o  ooOooOoO O        o  `OoooO'   O      o     O " << endl;
 	}
 }
 
@@ -570,13 +583,6 @@ int main() {
 	srand(time(NULL));
 	string name;
 
-	//ogarniêcie real time planszy, rewers obecnie stanowi¹ "0"
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			realTimePlansza[i][j] = 'O';
-		}
-	}
-
 	//wczytywanie na samym pocz¹ku znaków do tablic
 	ifstream wczytBiblLiczby;
 	wczytBiblLiczby.open("bibliotekaLiczby.txt");
@@ -587,10 +593,6 @@ int main() {
 			wczytBiblLiczby >> liczby[j];
 			//cout << liczby[j] << " ";
 		}
-	}
-	else
-	{
-		cout << "Nie udalo sie wczytac znakow" << endl;
 	}
 	wczytBiblLiczby.close();
 
@@ -603,10 +605,6 @@ int main() {
 			wczytBiblZnaki >> znakiMat[j];
 			//cout << znakiMat[j] << " ";
 		}
-	}
-	else
-	{
-		cout << "Nie udalo sie wczytac znakow" << endl;
 	}
 	wczytBiblZnaki.close();
 
@@ -652,8 +650,14 @@ int main() {
 				}
 			} while (blad == true);
 
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					realTimePlansza[i][j] = 'O';
+				}
+			}
 			switch (choice) {//wybieramy poziom
 			case '1'://zale¿nie od wybranego poziomu uruchamiamy inne funkcje z gr¹
+
 				wybierzKarty();//wczeœniej wybieraj¹c zestaw kart
 				losowanie(wybraneKarty, zestawKart);
 				odliczanie();
@@ -662,6 +666,7 @@ int main() {
 				break;
 
 			case '2':
+				
 				wybierzKarty();
 				losowanie(wybraneKarty, zestawKart);
 				odliczanie();
@@ -694,6 +699,7 @@ int main() {
 				}
 				EASY.close();
 			}
+
 
 			cout << "--------------------------------------------------------------" << endl;
 			cout << "                             HARD" << endl << endl;
