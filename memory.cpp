@@ -319,10 +319,13 @@ void easy(char realTimePlansza[4][4], char zestawKart[4][4], string name)
 	cout << "--------------------------------------------------------------" << endl;
 
 	fstream newfile;
-	newfile.open("RankingEasy.txt");
+	newfile.open("RankingEasy.txt", fstream::app); //fstream::app pozwala na otworzenie pliku w trybie append dziêki któremu nie nadpisujemy pliku tylko dopisujemy kolejne linie tekstu
 	if (newfile.is_open()) {
-		newfile << name << " " << punkty << "pkt";
+		newfile << name << " " << punkty << "pkt\n";
 		newfile.close();
+	}
+	else {
+		cout << "Blad przy otwieraniu pliku" << endl;
 	}
 	cout << endl; //ISTOTNE DO WSKAZNIKA, NIE USUWAC
 	plansza(realTimePlansza, I, licznikKrokow);
@@ -502,7 +505,7 @@ void logo() {			//wczytywanie logo MEMORY z pliku tekstowego
 		}
 		newfile.close();
 	}
-	else  {
+	else {
 		cout << "Oo      oO  o.OOoOoo Oo      oO.  oOOOo.  `OooOOo. o         O" << endl;
 		cout << "O O    o o  O        O O    o o .O     o.  o     `o O       o" << endl;
 		cout << "o  o  O  O  o        o  o  O  O O       o  O      O `o     O'" << endl;
@@ -666,7 +669,7 @@ int main() {
 				break;
 
 			case '2':
-				
+
 				wybierzKarty();
 				losowanie(wybraneKarty, zestawKart);
 				odliczanie();
